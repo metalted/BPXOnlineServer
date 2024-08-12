@@ -63,7 +63,7 @@ public class BlueprintService : IBlueprintService
             return Result.Fail("User is banned");
         }
 
-        Blueprint? existing = _repository.GetSingle(x=>x.Name == resource.Name && x.IdUser == user.Id);
+        Blueprint? existing = _repository.GetSingle(x => x.Name == resource.Name && x.IdUser == user.Id);
 
         if (existing != null)
         {
@@ -124,7 +124,7 @@ public class BlueprintService : IBlueprintService
         {
             return saveImageResult;
         }
-        
+
         return Result.Ok();
     }
 
@@ -136,32 +136,56 @@ public class BlueprintService : IBlueprintService
 
         foreach (Blueprint blueprint in blueprints)
         {
-            if (!string.IsNullOrWhiteSpace(resource.Creator) && blueprint.User.SteamName.Contains(
-                    resource.Creator,
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                filtered.Add(blueprint);
-            }
-            else if (MatchesAllTerms(blueprint, resource.Tags))
-            {
-                filtered.Add(blueprint);
-            }
-            else if (MatchesAllTags(blueprint, resource.Tags))
-            {
-                filtered.Add(blueprint);
-            }
+            bool hasCreator = !string.IsNullOrWhiteSpace(resource.Creator);
+            bool hasTags = resource.Tags != null && resource.Tags.Length > 0;
+            bool hasTerms = resource.Terms != null && resource.Terms.Length > 0;
+
+            if (hasCreator && !MatchesCreator(blueprint, resource.Creator))
+                continue;
+
+            if (hasTags && !MatchesAllTags(blueprint, resource.Tags))
+                continue;
+
+            // Use the terms to look through both the tags and the name
+            if (hasTerms && !MatchesAllTerms(blueprint, resource.Terms) && !MatchesAllTags(blueprint, resource.Terms))
+                continue;
+
+            filtered.Add(blueprint);
         }
 
         return filtered;
     }
-    
+
+    private static bool MatchesCreator(Blueprint blueprint, string creator)
+    {
+        return blueprint.User.SteamName.Contains(creator, StringComparison.OrdinalIgnoreCase);
+    }
+
     private static bool MatchesAllTerms(Blueprint blueprint, string[] terms)
     {
-        return terms.Length != 0 && terms.All(term => blueprint.Name.Contains(term, StringComparison.OrdinalIgnoreCase));
+        if (terms.Length == 0)
+            return false;
+
+        foreach (string term in terms)
+        {
+            if (!blueprint.Name.Contains(term, StringComparison.OrdinalIgnoreCase))
+                return false;
+        }
+
+        return true;
     }
-    
+
     private static bool MatchesAllTags(Blueprint blueprint, string[] tags)
     {
-        return tags.Length != 0 && tags.All(tag => blueprint.Tags.Contains(tag, StringComparer.OrdinalIgnoreCase));
+        if (tags.Length == 0)
+            return false;
+
+        foreach (string tag in tags)
+        {
+            if (!blueprint.Tags.Any(x => x.Equals(tag, StringComparison.OrdinalIgnoreCase)))
+                return false;
+        }
+
+        return true;
     }
 }
