@@ -63,7 +63,7 @@ public class BlueprintService : IBlueprintService
             return Result.Fail("User is banned");
         }
 
-        Blueprint? existing = _repository.GetSingle(x=>x.Name == resource.Name && x.IdUser == user.Id);
+        Blueprint? existing = _repository.GetSingle(x => x.Name == resource.Name && x.IdUser == user.Id);
 
         if (existing != null)
         {
@@ -124,7 +124,7 @@ public class BlueprintService : IBlueprintService
         {
             return saveImageResult;
         }
-        
+
         return Result.Ok();
     }
 
@@ -142,13 +142,17 @@ public class BlueprintService : IBlueprintService
 
             if (hasCreator && !MatchesCreator(blueprint, resource.Creator))
                 continue;
-            
+
             if (hasTags && !MatchesAllTags(blueprint, resource.Tags))
                 continue;
-            
+
             if (hasTerms && !MatchesAllTerms(blueprint, resource.Terms))
                 continue;
-            
+
+            // Use the terms to search through the tags as well
+            if (hasTerms && !MatchesAllTags(blueprint, resource.Terms))
+                continue;
+
             filtered.Add(blueprint);
         }
 
@@ -159,12 +163,12 @@ public class BlueprintService : IBlueprintService
     {
         return blueprint.User.SteamName.Contains(creator, StringComparison.OrdinalIgnoreCase);
     }
-    
+
     private static bool MatchesAllTerms(Blueprint blueprint, string[] terms)
     {
         if (terms.Length == 0)
             return false;
-        
+
         foreach (string term in terms)
         {
             if (!blueprint.Name.Contains(term, StringComparison.OrdinalIgnoreCase))
@@ -173,12 +177,12 @@ public class BlueprintService : IBlueprintService
 
         return true;
     }
-    
+
     private static bool MatchesAllTags(Blueprint blueprint, string[] tags)
     {
         if (tags.Length == 0)
             return false;
-        
+
         foreach (string tag in tags)
         {
             if (!blueprint.Tags.Any(x => x.Equals(tag, StringComparison.OrdinalIgnoreCase)))
