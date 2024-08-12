@@ -1,0 +1,6 @@
+﻿services:
+  metalted.bpx:
+    image: metalted.bpx
+    build:
+      context: .
+      dockerfile: Metalted.BPX/Dockerfile

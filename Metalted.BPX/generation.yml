@@ -1,0 +1,22 @@
+project:
+  namespace: Metalted.BPX
+  directory: .\
+  nullable: true
+  fileScopedNamespace: true
+database: 
+  connectionString: 'Host=127.0.0.1;Database=bpx;Username=bpx;Password=bpx;'
+  provider: PostgreSQL
+data:
+  context:
+    namespace: '{Project.Namespace}.Data'
+    directory: '{Project.Directory}\Data'
+    name: '{Database.Name}Context'
+    baseClass: DbContext
+  entity:
+    namespace: '{Project.Namespace}.Data.Entities'
+    directory: '{Project.Directory}\Data\Entities'
+  mapping:
+    rowVersion: Long
+    namespace: '{Project.Namespace}.Data.Mapping'
+    directory: '{Project.Directory}\Data\Mapping'
+    name: '{Entity.Name}Map'
