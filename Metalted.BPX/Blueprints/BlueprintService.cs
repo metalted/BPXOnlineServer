@@ -182,7 +182,7 @@ public class BlueprintService : IBlueprintService
 
         foreach (string tag in tags)
         {
-            if (!blueprint.Tags.Any(x => x.Equals(tag, StringComparison.OrdinalIgnoreCase)))
+            if (!blueprint.Tags.Any(x => x.Contains(tag, StringComparison.OrdinalIgnoreCase)))
                 return false;
         }
 
