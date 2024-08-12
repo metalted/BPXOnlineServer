@@ -146,11 +146,8 @@ public class BlueprintService : IBlueprintService
             if (hasTags && !MatchesAllTags(blueprint, resource.Tags))
                 continue;
 
-            if (hasTerms && !MatchesAllTerms(blueprint, resource.Terms))
-                continue;
-
-            // Use the terms to search through the tags as well
-            if (hasTerms && !MatchesAllTags(blueprint, resource.Terms))
+            // Use the terms to look through both the tags and the name
+            if (hasTerms && !MatchesAllTerms(blueprint, resource.Terms) && !MatchesAllTags(blueprint, resource.Terms))
                 continue;
 
             filtered.Add(blueprint);
