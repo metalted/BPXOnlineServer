@@ -48,7 +48,9 @@ public class BlueprintService : IBlueprintService
 
     public IEnumerable<Blueprint> Latest(int amount)
     {
-        return _repository.GetAll().OrderByDescending(x => x.DateUpdated ?? x.DateCreated).Take(amount);
+        return _repository.GetAll(set => set.Include(x => x.User))
+            .OrderByDescending(x => x.DateUpdated ?? x.DateCreated)
+            .Take(amount);
     }
 
     public async Task<Result<Blueprint>> Submit(ulong steamId, BlueprintResource resource)
