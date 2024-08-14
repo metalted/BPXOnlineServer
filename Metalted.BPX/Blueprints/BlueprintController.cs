@@ -115,6 +115,12 @@ public class BlueprintController : ControllerBase
         return Problem("Failed to check if blueprint exists", statusCode: 500);
     }
 
+    [HttpGet("latest/{amount}")]
+    public IActionResult Latest(int amount)
+    {
+        return Ok(_blueprintService.Latest(amount));
+    }
+
     [HttpPost("search")]
     public IActionResult Search([FromBody] SearchResource resource)
     {

@@ -10,7 +10,7 @@ namespace Metalted.BPX.Blueprints;
 public interface IBlueprintService
 {
     Result<bool> Exists(ulong steamId, string name);
-    IEnumerable<Blueprint> List(int page, int pageSize);
+    IEnumerable<Blueprint> Latest(int amount);
     Task<Result<Blueprint>> Submit(ulong steamId, BlueprintResource resource);
     IEnumerable<Blueprint> Search(SearchResource resource);
 }
@@ -46,9 +46,9 @@ public class BlueprintService : IBlueprintService
         return _repository.GetSingle(x => x.Name == name && x.IdUser == user.Id) != null;
     }
 
-    public IEnumerable<Blueprint> List(int page, int pageSize)
+    public IEnumerable<Blueprint> Latest(int amount)
     {
-        return _repository.GetAll().Skip(page * pageSize).Take(pageSize);
+        return _repository.GetAll().OrderByDescending(x => x.DateUpdated ?? x.DateCreated).Take(amount);
     }
 
     public async Task<Result<Blueprint>> Submit(ulong steamId, BlueprintResource resource)
