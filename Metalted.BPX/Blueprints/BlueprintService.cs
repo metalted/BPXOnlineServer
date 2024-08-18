@@ -136,20 +136,15 @@ public class BlueprintService : IBlueprintService
         List<Blueprint> blueprints = _repository.GetAll(set => set.Include(x => x.User)).ToList();
         List<Blueprint> filtered = new();
 
+        bool hasCreator = !string.IsNullOrWhiteSpace(resource.Creator);
+        bool hasTerms = resource.Terms != null && resource.Terms.Length > 0;
+
         foreach (Blueprint blueprint in blueprints)
         {
-            bool hasCreator = !string.IsNullOrWhiteSpace(resource.Creator);
-            bool hasTags = resource.Tags != null && resource.Tags.Length > 0;
-            bool hasTerms = resource.Terms != null && resource.Terms.Length > 0;
-
             if (hasCreator && !MatchesCreator(blueprint, resource.Creator))
                 continue;
 
-            if (hasTags && !MatchesAllTags(blueprint, resource.Tags))
-                continue;
-
-            // Use the terms to look through both the tags and the name
-            if (hasTerms && !MatchesAllTerms(blueprint, resource.Terms) && !MatchesAllTags(blueprint, resource.Terms))
+            if (hasTerms && !MatchesAllTerms(blueprint, resource.Terms))
                 continue;
 
             filtered.Add(blueprint);
@@ -168,23 +163,15 @@ public class BlueprintService : IBlueprintService
         if (terms.Length == 0)
             return false;
 
+        List<string> items =
+        [
+            blueprint.Name,
+            ..blueprint.Tags
+        ];
+
         foreach (string term in terms)
         {
-            if (!blueprint.Name.Contains(term, StringComparison.OrdinalIgnoreCase))
-                return false;
-        }
-
-        return true;
-    }
-
-    private static bool MatchesAllTags(Blueprint blueprint, string[] tags)
-    {
-        if (tags.Length == 0)
-            return false;
-
-        foreach (string tag in tags)
-        {
-            if (!blueprint.Tags.Any(x => x.Contains(tag, StringComparison.OrdinalIgnoreCase)))
+            if (!items.Any(x => x.Contains(term, StringComparison.OrdinalIgnoreCase)))
                 return false;
         }
 
